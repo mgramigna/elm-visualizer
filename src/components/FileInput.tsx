@@ -1,5 +1,5 @@
+import { ArrowUpTrayIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
-import Spinner from "./Spinner";
 
 type FileInputProps = {
   id: string;
@@ -7,7 +7,6 @@ type FileInputProps = {
 };
 
 export default function FileInput({ id, onUpload }: FileInputProps) {
-  const [isUploadLoading, setIsUplaodLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -33,15 +32,19 @@ export default function FileInput({ id, onUpload }: FileInputProps) {
   return (
     <div>
       <label htmlFor={id}>
-        {isUploadLoading ? (
-          <div className="w-full flex justify-center">
-            <Spinner />
+        <div className="w-full items-center flex border-2 border-slate-300 p-2 rounded-lg cursor-pointer hover:bg-slate-200">
+          <ArrowUpTrayIcon className="w-6 h-6 absolute" />
+
+          <div className="pl-8 w-full">
+            {fileName ? (
+              <div className="font-bold text-sm truncate">{fileName}</div>
+            ) : (
+              <div className="italic font-extralight text-sm">
+                Upload ELM JSON...
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="w-full border-2 border-slate-300 p-4 rounded-lg">
-            {fileName || "Upload File"}
-          </div>
-        )}
+        </div>
       </label>
       <input
         id={id}
@@ -51,14 +54,11 @@ export default function FileInput({ id, onUpload }: FileInputProps) {
         className="hidden"
         onChange={(e) => {
           if (e.target.files) {
-            setIsUplaodLoading(true);
             handleUpload(e.target.files[0])
               .then((e) => {
                 onUpload(e.library);
-                setIsUplaodLoading(false);
               })
               .catch((e) => {
-                setIsUplaodLoading(false);
                 setFileName("");
                 setErrorMessage(e.message);
               });

@@ -1,6 +1,7 @@
 import {
   isELMBinary,
   isELMExpressionRef,
+  isELMFunctionRef,
   isELMLiteral,
   isELMParameterRef,
   isELMQuery,
@@ -16,7 +17,17 @@ export default function Tree({ rootStatement }: TreeProps) {
   const handleExpression = (expr?: ELM.Expression) => {
     if (!expr) return "";
 
-    if (isELMLiteral(expr)) {
+    if (isELMFunctionRef(expr)) {
+      return (
+        <div className="">
+          <TreeNode
+            label={`${expr.type} (${
+              expr.libraryName ? `${expr.libraryName}.` : ""
+            }"${expr.name}")`}
+          />
+        </div>
+      );
+    } else if (isELMLiteral(expr)) {
       return (
         <div className="">
           <TreeNode label={`${expr.type} (${expr.value})`} />
@@ -25,9 +36,11 @@ export default function Tree({ rootStatement }: TreeProps) {
     } else if (isELMQuery(expr)) {
       return (
         <div className="">
-          <TreeNode label={expr.type} />
+          <div className="flex justify-center">
+            <TreeNode label={expr.type} />
+          </div>
           {expr.source.map((s) => (
-            <div className="flex justify-around" key={s.localId}>
+            <div className="flex justify-around pt-4" key={s.localId}>
               {handleExpression(s.expression)}
             </div>
           ))}
@@ -43,9 +56,9 @@ export default function Tree({ rootStatement }: TreeProps) {
       return (
         <div className="">
           <TreeNode
-            label={`${expr.libraryName ? `${expr.libraryName}.` : ""}"${
-              expr.name
-            }"`}
+            label={`${expr.type} (${
+              expr.libraryName ? `${expr.libraryName}.` : ""
+            }"${expr.name}")`}
           />
         </div>
       );
@@ -55,7 +68,7 @@ export default function Tree({ rootStatement }: TreeProps) {
           <div className="flex justify-center">
             <TreeNode label={expr.type} />
           </div>
-          <div>{handleExpression(expr.operand)}</div>
+          <div className="pt-4">{handleExpression(expr.operand)}</div>
         </div>
       );
     } else if (isELMBinary(expr)) {
@@ -64,9 +77,14 @@ export default function Tree({ rootStatement }: TreeProps) {
           <div className="flex justify-center">
             <TreeNode label={expr.type} />
           </div>
-          <div className="flex justify-around">
-            <div className="border-2">{handleExpression(expr.operand[0])}</div>
-            <div className="border-2">{handleExpression(expr.operand[1])}</div>
+          <div className="flex justify-around pt-4">
+            <div className="border-2 p-4">
+              {handleExpression(expr.operand[0])}
+            </div>
+            <div className="px-4"></div>
+            <div className="border-2 p-4">
+              {handleExpression(expr.operand[1])}
+            </div>
           </div>
         </div>
       );
@@ -82,7 +100,7 @@ export default function Tree({ rootStatement }: TreeProps) {
   return (
     <div className="w-full flex flex-col items-center">
       <div className="font-bold text-xl pb-8">{rootStatement.name}</div>
-      <div className="flex justify-center border-2">
+      <div className="flex justify-center border-2 p-4">
         {handleExpression(rootStatement.expression)}
       </div>
     </div>

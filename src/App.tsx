@@ -20,24 +20,47 @@ function App() {
   };
 
   const renderSelectedStatement = () => {
-    const statment = elm?.statements?.def?.find(
-      (s) => s.name === selectedStatement
-    );
+    let statement: ELM.ExpressionDef | ELM.FunctionDef | undefined;
 
-    return statment ? <Tree rootStatement={statment} /> : "";
+    if (selectedStatement) {
+      statement = elm?.statements?.def?.find(
+        (s) => s.name === selectedStatement
+      );
+    } else if (tabContent.length === 1) {
+      statement = elm?.statements?.def?.find((s) => s.name === tabContent[0]);
+    }
+
+    return statement ? <Tree rootStatement={statement} /> : "";
+  };
+
+  const renderTabs = () => {
+    if (!elm || tabContent.length === 1) {
+      return "";
+    }
+
+    return (
+      <>
+        <div className="text-center pb-8 font-bold text-xl">
+          Select Statement:
+        </div>
+        <div>
+          <Tabs
+            labels={tabContent}
+            onChange={setSelectedStatement}
+            selected={selectedStatement}
+          />
+        </div>
+      </>
+    );
   };
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full">
-        <Tabs
-          labels={tabContent}
-          onChange={setSelectedStatement}
-          selected={selectedStatement}
-        />
+    <div className="flex flex-col items-center">
+      <div className="w-72 py-8">
         <FileInput id="elm-file-input" onUpload={processElm} />
-        {selectedStatement && renderSelectedStatement()}
       </div>
+      <div className="w-full">{renderTabs()}</div>
+      {renderSelectedStatement()}
     </div>
   );
 }
